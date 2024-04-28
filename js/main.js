@@ -6,6 +6,10 @@ Vue.component('column', {
         column_name: {
             type : String,
             required : true
+        },
+        id: {
+            type: String,
+            required: true,
         }
     },
     template:`
@@ -19,10 +23,17 @@ Vue.component('column', {
     data() {
         return {    
             tasks :{
-                
+
             }
         }
     },
+    mounted(){
+        eventBus.$on('form-created',function(list){
+            if(this.id == 'first'){
+
+            }
+        }.bind(this))
+    }
 })
 
 Vue.component('creator', {

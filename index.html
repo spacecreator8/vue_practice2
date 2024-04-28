@@ -4,10 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <script defer src="js/vue.js"></script>
+    <script defer src="js/main.js"></script>
 </head>
 <body>
     <div id="app">
-        
+        <creator></creator>
+        <div class="for_column">
+            <column :column_name="'Запланированные'"></column>
+            <column :column_name="'В процессе'"></column>
+            <column :column_name="'Выполненные'"></column>
+        </div>
     </div>
 </body>
 </html>

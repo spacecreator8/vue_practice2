@@ -15,6 +15,14 @@ Vue.component('column', {
     template:`
         <div class="column">
             <h2>{{ column_name }}</h2>
+            <div class="task_space" v-if="tasks" v-for="task in tasks">
+                <h3>{{task.title}}</h3>
+                <p>{{task.task1}}</p>
+                <p>{{task.task2}}</p>
+                <p>{{task.task3}}</p>
+                <p v-if="task.task4">{{task.task4}}</p>
+                <p v-if="task.task5">{{task.task5}}</p>
+            </div>
             <div>
 
             </div>
@@ -22,15 +30,22 @@ Vue.component('column', {
     `,
     data() {
         return {    
-            tasks :{
-
-            }
+            tasks :[],
+            activity:[],
         }
     },
     mounted(){
         eventBus.$on('form-created',function(list){
             if(this.id == 'first'){
-
+                let activity = {};
+                let counter=0;
+                for(key in list){
+                    activity.counter = false;
+                    counter++;
+                }
+                list.done = activity;
+                this.tasks.push(list);
+                console.log(list.done);
             }
         }.bind(this))
     }
@@ -92,7 +107,8 @@ Vue.component('creator', {
             }
         },
         customSubmit(){
-            eventBus.$emit('form-created', this.list);
+            let copy = Object.assign({}, this.list)
+            eventBus.$emit('form-created', copy);
             this.list.title = null;
             this.list.task1 = null;
             this.list.task2 = null;

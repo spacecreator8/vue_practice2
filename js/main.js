@@ -16,12 +16,12 @@ Vue.component('column', {
         <div class="column">
             <h2>{{ column_name }}</h2>
             <div class="task_space" v-if="tasks" v-for="task in tasks">
-                <h3>{{task.title}}</h3>
-                <p>{{task.task1}}</p>
-                <p>{{task.task2}}</p>
-                <p>{{task.task3}}</p>
-                <p v-if="task.task4">{{task.task4}}</p>
-                <p v-if="task.task5">{{task.task5}}</p>
+                <h2>{{task.title}}</h2>
+                <p><input type="checkbox">{{task.task1}}</p>
+                <p><input type="checkbox">{{task.task2}}</p>
+                <p><input type="checkbox">{{task.task3}}</p>
+                <p v-if="task.task4"><input type="checkbox">{{task.task4}}</p>
+                <p v-if="task.task5"><input type="checkbox">{{task.task5}}</p>
             </div>
             <div>
 
@@ -31,21 +31,25 @@ Vue.component('column', {
     data() {
         return {    
             tasks :[],
-            activity:[],
+            task_in_process: [],
+            task_ended: [],
         }
     },
     mounted(){
         eventBus.$on('form-created',function(list){
             if(this.id == 'first'){
                 let activity = {};
-                let counter=0;
+
                 for(key in list){
-                    activity.counter = false;
-                    counter++;
+                    if(list[key] && key!='title'){
+                        activity[key] = 1;
+                    }
                 }
-                list.done = activity;
+                list.active = activity;
                 this.tasks.push(list);
-                console.log(list.done);
+                console.log(list);
+                console.log(list.active);
+
             }
         }.bind(this))
     }
@@ -55,6 +59,9 @@ Vue.component('creator', {
     template: `
         <div class="form_box">
             <form class="review-form">
+                <div class="errors_output" v-if="{hidden: errors}" v-for="er in errors">
+                    <p v-if="{hidden: errors}">{{ er }}</p>
+                </div>
                 <p class="large_input">
                     <label for="name"><b>Заголовок:</b></label>
                     <input type="text" id="name" v-model="list.title" name="title">
@@ -87,7 +94,8 @@ Vue.component('creator', {
     data() {
         return {
             hiddenFlag4: true,
-            hiddenFlag5: true,    
+            hiddenFlag5: true,
+            errors: [],    
             list: {
                 title: null,
                 task1: null,
@@ -107,14 +115,26 @@ Vue.component('creator', {
             }
         },
         customSubmit(){
-            let copy = Object.assign({}, this.list)
-            eventBus.$emit('form-created', copy);
-            this.list.title = null;
-            this.list.task1 = null;
-            this.list.task2 = null;
-            this.list.task3 = null;
-            this.list.task4 = null;
-            this.list.task5 = null;
+            this.errors = [];
+            if(!this.list.title){
+                this.errors.push("Добавьте заголовок.");
+            }
+            if(!this.list.task1 || !this.list.task2 || !this.list.task3){
+                this.errors.push("Первые три задачи обязательны к заполнению.");
+            }
+
+            if(!(this.errors).length){
+                let copy = Object.assign({}, this.list)
+                eventBus.$emit('form-created', copy);
+
+                this.list.title = null; 
+                this.list.task1 = null; 
+                this.list.task2 = null;
+                this.list.task3 = null;
+                this.list.task4 = null;
+                this.list.task5 = null;
+            }
+            
         }
     }
 })

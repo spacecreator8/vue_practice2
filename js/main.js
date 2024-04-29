@@ -15,13 +15,13 @@ Vue.component('column', {
     template:`
         <div class="column">
             <h2>{{ column_name }}</h2>
-            <div class="task_space" v-if="tasks" v-for="task in tasks">
+            <div class="task_space" v-if="tasks" v-for="(task, index) in tasks">
                 <h2>{{task.title}}</h2>
-                <p><input type="checkbox">{{task.task1}}</p>
-                <p><input type="checkbox">{{task.task2}}</p>
-                <p><input type="checkbox">{{task.task3}}</p>
-                <p v-if="task.task4"><input type="checkbox">{{task.task4}}</p>
-                <p v-if="task.task5"><input type="checkbox">{{task.task5}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 1)">{{task.task1}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 2)">{{task.task2}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 3)">{{task.task3}}</p>
+                <p v-if="task.task4"><input type="checkbox" @click="checkboxClick(index, 4)">{{task.task4}}</p>
+                <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)">{{task.task5}}</p>
             </div>
             <div>
 
@@ -31,8 +31,32 @@ Vue.component('column', {
     data() {
         return {    
             tasks :[],
-            task_in_process: [],
-            task_ended: [],
+            tasks_in_process: [],
+            tasks_ended: [],
+        }
+    },
+    methods:{
+        checkboxClick(firstId, secondId){
+            let el = this.tasks[firstId];
+            switch(secondId){
+                case 1:
+                    el.active.task1 = !el.active.task1;
+                    break;
+                case 2:
+                    el.active.task2 = !el.active.task2;
+                    break;
+                case 3:
+                    el.active.task3 = !el.active.task3;
+                    break;
+                case 4:
+                    el.active.task4 = !el.active.task4;
+                    break;
+                case 5:
+                    el.active.task5 = !el.active.task5;
+                    break;
+            }
+            eventBus.$emit('changeStatus',firstId);
+            console.log(el.active);
         }
     },
     mounted(){
@@ -42,7 +66,7 @@ Vue.component('column', {
 
                 for(key in list){
                     if(list[key] && key!='title'){
-                        activity[key] = 1;
+                        activity[key] = false;
                     }
                 }
                 list.active = activity;
@@ -51,6 +75,15 @@ Vue.component('column', {
                 console.log(list.active);
 
             }
+        }.bind(this)),
+
+
+        eventBus.$on('checkCount1',function(){
+            if(this.id=='first'){
+                eventBus.$emit('checkCount1Response', (this.tasks).length);
+                console.log("(this.tasks).length) " + (this.tasks).length);
+            }
+
         }.bind(this))
     }
 })
@@ -95,7 +128,8 @@ Vue.component('creator', {
         return {
             hiddenFlag4: true,
             hiddenFlag5: true,
-            errors: [],    
+            errors: [],
+            count1:[],    
             list: {
                 title: null,
                 task1: null,
@@ -106,8 +140,13 @@ Vue.component('creator', {
             },
         }
     },
+    mounted(){
+        eventBus.$on('checkCount1Response', function(count){
+            this.count1 = count;
+        }.bind(this))
+    },
     methods:{
-        addTask(){  
+        addTask(){
             if(this.hiddenFlag4){
                 this.hiddenFlag4 = false;
             }else{
@@ -115,6 +154,7 @@ Vue.component('creator', {
             }
         },
         customSubmit(){
+            eventBus.$emit('checkCount1');
             this.errors = [];
             if(!this.list.title){
                 this.errors.push("Добавьте заголовок.");
@@ -124,15 +164,22 @@ Vue.component('creator', {
             }
 
             if(!(this.errors).length){
-                let copy = Object.assign({}, this.list)
-                eventBus.$emit('form-created', copy);
+                if(this.count1 < 3){
+                    let copy = Object.assign({}, this.list)
+                    eventBus.$emit('form-created', copy);
+                    console.log(this.count1);
 
-                this.list.title = null; 
-                this.list.task1 = null; 
-                this.list.task2 = null;
-                this.list.task3 = null;
-                this.list.task4 = null;
-                this.list.task5 = null;
+                    this.list.title = null; 
+                    this.list.task1 = null; 
+                    this.list.task2 = null;
+                    this.list.task3 = null;
+                    this.list.task4 = null;
+                    this.list.task5 = null;
+                    
+                }else{
+                    this.errors = ['Достигнуто максимальное колличество списков в первом столбце.'];
+                }
+                
             }
             
         }

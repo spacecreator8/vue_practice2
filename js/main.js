@@ -79,16 +79,15 @@ Vue.component('column', {
                     el.active.task5 = !el.active.task5;
                     break;
             }
-            console.log(firstId);
+            // console.log(firstId);
             firstId = parseInt(firstId);
-            console.log("Переведенный - " + firstId);
-            console.log(typeof(firstId));
+            // console.log("Переведенный - " + firstId);
+            // console.log(typeof(firstId));
             this.checkActivity(firstId);
-            console.log(el.active);
+            // console.log(el.active);
             
         },
         checkActivity(firstId){
-            console.log("checkActivity работает!!!")
             let list;
             switch(this.id){
                 case 'first':
@@ -102,9 +101,9 @@ Vue.component('column', {
             let overalTasks = 0;
             let activeTasks = 0;
 
-            console.log("передаваемый ID в checkActivity " + firstId);
-            console.log(typeof(firstId));
-            console.log(list);
+            // console.log("передаваемый ID в checkActivity " + firstId);
+            // console.log(typeof(firstId));
+            // console.log(list);
 
             for(el in list.active){
                 overalTasks++;
@@ -114,6 +113,9 @@ Vue.component('column', {
                     activeTasks++;
                 }
             }
+            console.log("overalTasks - " + overalTasks);
+            console.log("activeTasks - " + activeTasks);
+
             if(this.id =='first' && (overalTasks/activeTasks) >= 1.5){
                 let movedEl = this.tasks.splice(firstId, 1)[0];
                 this.tasks_in_process.push(movedEl);
@@ -126,6 +128,7 @@ Vue.component('column', {
                 let movedEl = this.tasks_in_process.splice(firstId, 1)[0];
                 this.tasks_finished.push(movedEl);
             }
+
         }
     },
     computed: {
@@ -143,8 +146,8 @@ Vue.component('column', {
                 }
                 list.active = activity;
                 this.tasks.push(list);
-                console.log(list);
-                console.log(list.active);
+                // console.log(list);
+                // console.log(list.active);
 
             }
         }.bind(this)),
@@ -153,7 +156,7 @@ Vue.component('column', {
         eventBus.$on('checkCount1',function(){
             if(this.id=='first'){
                 eventBus.$emit('checkCount1Response', (this.tasks).length);
-                console.log("(this.tasks).length) " + (this.tasks).length);
+                // console.log("(this.tasks).length) " + (this.tasks).length);
             }
 
         }.bind(this))
@@ -239,7 +242,7 @@ Vue.component('creator', {
                 if(this.count1 < 3){
                     let copy = Object.assign({}, this.list)
                     eventBus.$emit('form-created', copy);
-                    console.log(this.count1);
+                    // console.log(this.count1);
 
                     this.list.title = null; 
                     this.list.task1 = null; 

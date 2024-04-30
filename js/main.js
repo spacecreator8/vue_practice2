@@ -53,7 +53,7 @@ Vue.component('column', {
     },
     methods:{
         checkboxClick(firstId, secondId){
-            let el ;
+            let el;
             switch(this.id){
                 case 'first':
                     el = this.tasks[firstId];
@@ -79,16 +79,16 @@ Vue.component('column', {
                     el.active.task5 = !el.active.task5;
                     break;
             }
+            console.log(firstId);
             firstId = parseInt(firstId);
-            // console.log("Переведенный - " + firstId);
-            // console.log(typeof(firstId));
+            console.log("Переведенный - " + firstId);
+            console.log(typeof(firstId));
             this.checkActivity(firstId);
             console.log(el.active);
             
         },
-    },
-    computed: {
         checkActivity(firstId){
+            console.log("checkActivity работает!!!")
             let list;
             switch(this.id){
                 case 'first':
@@ -127,6 +127,9 @@ Vue.component('column', {
                 this.tasks_finished.push(movedEl);
             }
         }
+    },
+    computed: {
+        
     },
     mounted(){
         eventBus.$on('form-created',function(list){

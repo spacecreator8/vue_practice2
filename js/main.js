@@ -161,6 +161,8 @@ Vue.component('column', {
 
         eventBus.$on('check-activity', function(index, columnId){
             let list;
+            let overTasks;
+            let actTasks = 0;
             if(columnId == this.id){
                 if(columnId == 'first'){
                     list=this.tasks[index];
@@ -171,6 +173,22 @@ Vue.component('column', {
                     console.log("Событие произошло в столбце - " + columnId);
                     console.log(`Переданный индекс = ${index} , его тип данных ${typeof(index)}`);
                 }
+
+                overTasks = Object.keys(list.active).length;
+                for(let key in list.active){
+                    if(list.active[key]){
+                        actTasks +=1;
+                    }   
+                }
+                console.log(`Переменная overTasks = ${overTasks}`);
+                console.log(`Переменная actTasks = ${actTasks}`);
+
+                let blank = this.tasks.splice(index,1)[0];
+                this.tasks_in_process.push(blank);
+                console.log("Список задач был перемещен в следующую колонку.");
+                console.log("tasks - " + this.tasks);
+                console.log("tasks_in_process - " + this.tasks_in_process);
+
             }
 
         }.bind(this))

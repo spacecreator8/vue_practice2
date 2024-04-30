@@ -23,21 +23,45 @@ Vue.component('column', {
                 <p v-if="task.task4"><input type="checkbox" @click="checkboxClick(index, 4)">{{task.task4}}</p>
                 <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)">{{task.task5}}</p>
             </div>
-            <div>
 
+            <div class="task_space" v-if="tasks_in_process" v-for="(task, index) in tasks_in_process">
+                <h2>{{task.title}}</h2>
+                <p><input type="checkbox" @click="checkboxClick(index, 1)">{{task.task1}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 2)">{{task.task2}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 3)">{{task.task3}}</p>
+                <p v-if="task.task4"><input type="checkbox" @click="checkboxClick(index, 4)">{{task.task4}}</p>
+                <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)">{{task.task5}}</p>
             </div>
+
+            <div class="task_space" v-if="tasks_finished" v-for="(task, index) in tasks_finished">
+                <h2>{{task.title}}</h2>
+                <p><input type="checkbox" @click="checkboxClick(index, 1)">{{task.task1}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 2)">{{task.task2}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 3)">{{task.task3}}</p>
+                <p v-if="task.task4"><input type="checkbox" @click="checkboxClick(index, 4)">{{task.task4}}</p>
+                <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)">{{task.task5}}</p>
+            </div>
+
         </div>
     `,
     data() {
         return {    
             tasks :[],
             tasks_in_process: [],
-            tasks_ended: [],
+            tasks_finished: [],
         }
     },
     methods:{
         checkboxClick(firstId, secondId){
-            let el = this.tasks[firstId];
+            let el ;
+            switch(this.id){
+                case 'first':
+                    el = this.tasks[firstId];
+                    break;
+                case 'second':
+                    el = this.tasks_in_process[firstId];
+                    break;
+            }
             switch(secondId){
                 case 1:
                     el.active.task1 = !el.active.task1;
@@ -55,8 +79,53 @@ Vue.component('column', {
                     el.active.task5 = !el.active.task5;
                     break;
             }
-            eventBus.$emit('changeStatus',firstId);
+            firstId = parseInt(firstId);
+            // console.log("Переведенный - " + firstId);
+            // console.log(typeof(firstId));
+            this.checkActivity(firstId);
             console.log(el.active);
+            
+        },
+    },
+    computed: {
+        checkActivity(firstId){
+            let list;
+            switch(this.id){
+                case 'first':
+                    list = this.tasks[firstId];
+                    break;
+                case 'second':
+                    list = this.tasks_in_process[firstId];
+                    break;
+            }
+            
+            let overalTasks = 0;
+            let activeTasks = 0;
+
+            console.log("передаваемый ID в checkActivity " + firstId);
+            console.log(typeof(firstId));
+            console.log(list);
+
+            for(el in list.active){
+                overalTasks++;
+            }
+            for(el in list.active){
+                if(el){
+                    activeTasks++;
+                }
+            }
+            if(this.id =='first' && (overalTasks/activeTasks) >= 1.5){
+                let movedEl = this.tasks.splice(firstId, 1)[0];
+                this.tasks_in_process.push(movedEl);
+
+            }else if(this.id =='second' && (overalTasks/activeTasks) < 1.5){
+                let movedEl = this.tasks_in_process.splice(firstId, 1)[0];
+                this.tasks.push(movedEl);
+
+            }else if(this.id =='second' && (overalTasks==activeTasks)){
+                let movedEl = this.tasks_in_process.splice(firstId, 1)[0];
+                this.tasks_finished.push(movedEl);
+            }
         }
     },
     mounted(){

@@ -21,9 +21,9 @@ Vue.component('column', {
             <h2>{{ column_name }}</h2>
             <div class="task_space" v-if="arr.length" v-for="(task, index) in arr">
                 <h2>{{task.title}}</h2>
-                <p><input type="checkbox" @click="checkboxClick(index, 1)" v-model="arr[index].active.task1">{{task.task1}}</p>
-                <p><input type="checkbox" @click="checkboxClick(index, 2)" v-model="arr[index].active.task2">{{task.task2}}</p>
-                <p><input type="checkbox" @click="checkboxClick(index, 3)" v-model="arr[index].active.task3">{{task.task3}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 1)" v-model="arr[index].active.task1" v-if="task">{{task.task1}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 2)" v-model="arr[index].active.task2" v-if="task">{{task.task2}}</p>
+                <p><input type="checkbox" @click="checkboxClick(index, 3)" v-model="arr[index].active.task3" v-if="task">{{task.task3}}</p>
                 <p v-if="task.task4"><input type="checkbox" @click="checkboxClick(index, 4)" v-model="arr[index].active.task4">{{task.task4}}</p>
                 <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)" v-model="arr[index].active.task5">{{task.task5}}</p>
             </div>
@@ -40,7 +40,13 @@ Vue.component('column', {
             firstId = parseInt(firstId);
 
             el = this.arr[firstId];
-                
+            console.log('checkboxClick---------------------');
+            console.log(el);
+            console.log(el.active);
+            console.log(`Переданные данные : columnId- ${this.id}, index- ${firstId}`);
+            
+            
+
             if(el){
                 switch(secondId){
                     case 1:
@@ -60,7 +66,6 @@ Vue.component('column', {
                         break;
                 }
                 eventBus.$emit('check-activity', firstId, this.id);
-                console.log(el.active);
             }
         },
     },
@@ -122,6 +127,7 @@ Vue.component('creator', {
                 task3: null,
                 task4: null,
                 task5: null,
+
             },
         }
     },
@@ -152,7 +158,6 @@ Vue.component('creator', {
                 if(this.count1 < 3){
                     let copy = Object.assign({}, this.list)
                     eventBus.$emit('form-created', copy);
-                    // console.log(this.count1);
 
                     this.list.title = null; 
                     this.list.task1 = null; 
@@ -193,58 +198,59 @@ let app = new Vue({
             }
             list.active = activity;
             this.tasks.push(list);
-            // console.log(list);
-            // console.log(list.active);
             
         }.bind(this)),
 
 
         eventBus.$on('checkCount1',function(){
             eventBus.$emit('checkCount1Response', (this.tasks).length);
-            console.log("(this.tasks).length) " + (this.tasks).length);
         }.bind(this)),
 
 
         eventBus.$on('check-activity', function(index, columnId){
-            
-            console.log("1 - index = " + index + ", columnId = " + columnId);
             let list;
             let overTasks;
             let actTasks = 0;
             
             if(columnId == 'first'){
                 list=this.tasks[index];
-                // console.log("2 - Событие произошло в столбце - " + columnId);
-                // console.log(`3 - Переданный индекс = ${index} , его тип данных ${typeof(index)}`);
             }else if(columnId == 'second'){
                 list=this.tasks_in_process[index];
-                // console.log("2 - Событие произошло в столбце - " + columnId);
-                // console.log(`3 - Переданный индекс = ${index} , его тип данных ${typeof(index)}`);
             }
 
-            overTasks = Object.keys(list.active).length;
-            for(let key in list.active){
-                if(list.active[key]){
-                    actTasks +=1;
-                }   
+            if(list != undefined){
+                overTasks = Object.keys(list.active).length;
+                for(let key in list.active){
+                    if(list.active[key]){
+                        actTasks +=1;
+                    }   
+                }
+
+                
+                let blank = Object.assign({}, this.tasks[index]);
+                
+                blank.active = Object.assign({}, this.tasks[index].active)
+                console.log("checkActivity-------------------");
+                console.log("Копируемый объект и его активность");
+                console.log(blank);
+                console.log(blank.active);
+                console.log(`Переданные данные : columnId- ${columnId}, index- ${index}`);
+                if(columnId == 'first'){
+                    this.tasks.splice(index, 1);
+                    this.tasks_in_process.push(blank);
+                }
+                
+                // eventBus.$emit('tasksPop', index, id);
             }
-            // console.log(`4 - Переменная overTasks = ${overTasks}`);
-            // console.log(`5 - Переменная actTasks = ${actTasks}`);
-            
-            let blank = Object.assign({}, this.tasks[index]);
-            console.log("Скопированный объект .active- ");
-            
-            blank.active = Object.assign({}, this.tasks[index].active)
-            console.log(blank.active);
-            // this.tasks.splice(index, 1);
-            
-            this.tasks_in_process.push(blank);
-            console.log("Список задач был перемещен в следующую колонку.");
-            console.log("tasks - " + this.tasks);
-            console.log("tasks_in_process - " + this.tasks_in_process[0].active);
+        }.bind(this)),
 
-            
 
+        eventBus.$on('tasksPop', function(index, id){
+            if(id === 'first'){
+                this.tasks.splice(index, 1);
+            }else if(id === 'second'){
+                this.tasks_in_process.splice(index, 1)
+            }
         }.bind(this))
     }    
  })

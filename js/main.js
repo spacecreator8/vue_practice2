@@ -15,7 +15,7 @@ Vue.component('column', {
     template:`
         <div class="column">
             <h2>{{ column_name }}</h2>
-            <div class="task_space" v-if="tasks" v-for="(task, index) in tasks">
+            <div class="task_space" v-if="tasks.length" v-for="(task, index) in tasks">
                 <h2>{{task.title}}</h2>
                 <p><input type="checkbox" @click="checkboxClick(index, 1)">{{task.task1}}</p>
                 <p><input type="checkbox" @click="checkboxClick(index, 2)">{{task.task2}}</p>
@@ -24,7 +24,7 @@ Vue.component('column', {
                 <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)">{{task.task5}}</p>
             </div>
 
-            <div class="task_space" v-if="tasks_in_process" v-for="(task, index) in tasks_in_process">
+            <div class="task_space" v-if="tasks_in_process.length" v-for="(task, index) in tasks_in_process">
                 <h2>{{task.title}}</h2>
                 <p><input type="checkbox" @click="checkboxClick(index, 1)">{{task.task1}}</p>
                 <p><input type="checkbox" @click="checkboxClick(index, 2)">{{task.task2}}</p>
@@ -33,7 +33,7 @@ Vue.component('column', {
                 <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)">{{task.task5}}</p>
             </div>
 
-            <div class="task_space" v-if="tasks_finished" v-for="(task, index) in tasks_finished">
+            <div class="task_space" v-if="tasks_finished.length" v-for="(task, index) in tasks_finished">
                 <h2>{{task.title}}</h2>
                 <p><input type="checkbox" @click="checkboxClick(index, 1)">{{task.task1}}</p>
                 <p><input type="checkbox" @click="checkboxClick(index, 2)">{{task.task2}}</p>
@@ -63,72 +63,28 @@ Vue.component('column', {
                     el = this.tasks_in_process[firstId];
                     break;
             }
-            switch(secondId){
-                case 1:
-                    el.active.task1 = !el.active.task1;
-                    break;
-                case 2:
-                    el.active.task2 = !el.active.task2;
-                    break;
-                case 3:
-                    el.active.task3 = !el.active.task3;
-                    break;
-                case 4:
-                    el.active.task4 = !el.active.task4;
-                    break;
-                case 5:
-                    el.active.task5 = !el.active.task5;
-                    break;
+            if(el){
+                switch(secondId){
+                    case 1:
+                        el.active.task1 = !el.active.task1;
+                        break;
+                    case 2:
+                        el.active.task2 = !el.active.task2;
+                        break;
+                    case 3:
+                        el.active.task3 = !el.active.task3;
+                        break;
+                    case 4:
+                        el.active.task4 = !el.active.task4;
+                        break;
+                    case 5:
+                        el.active.task5 = !el.active.task5;
+                        break;
+                }
+                eventBus.$emit('check-activity', firstId, this.id);
+                console.log(el.active);
             }
-            eventBus.$emit('check-activity', firstId, this.id);
-
-            // console.log(firstId);
-            
-            // console.log("Переведенный - " + firstId);
-            // console.log(typeof(firstId));
-            // this.checkActivity(firstId);
-            console.log(el.active);
-            
         },
-        // checkActivity(firstId){
-        //     let list;
-        //     switch(this.id){
-        //         case 'first':
-        //             list = this.tasks[firstId];
-        //             break;
-        //         case 'second':
-        //             list = this.tasks_in_process[firstId];
-        //             break;
-        //     }
-        //     let overalTasks = 0;
-        //     let activeTasks = 0;
-
-        //     console.log("передаваемый ID в checkActivity " + firstId);
-        //     // console.log(typeof(firstId));
-        //     // console.log(list);
-
-        //     for(let el in list.active){
-        //         overalTasks++;
-        //     }
-        //     for(let el in list.active){
-        //         if(list.active[el]){
-        //             activeTasks++;
-        //         }
-        //     }
-        //     console.log("overalTasks - " + overalTasks);
-        //     console.log("activeTasks - " + activeTasks);
-        //     if(this.id =='first' && (overalTasks/activeTasks) >= 1.5){
-        //         let movedEl = this.tasks.splice(firstId, 1)[0];
-        //         this.tasks_in_process.push(movedEl);
-        //     }else if(this.id =='second' && (overalTasks/activeTasks) < 1.5){
-        //         let movedEl = this.tasks_in_process.splice(firstId, 1)[0];
-        //         this.tasks.push(movedEl);
-        //     }else if(this.id =='second' && (overalTasks==activeTasks)){
-        //         let movedEl = this.tasks_in_process.splice(firstId, 1)[0];
-        //         this.tasks_finished.push(movedEl);
-        //     }
-
-        // }
     },
     computed: {
         
@@ -183,7 +139,7 @@ Vue.component('column', {
                 console.log(`Переменная overTasks = ${overTasks}`);
                 console.log(`Переменная actTasks = ${actTasks}`);
 
-                let blank = this.tasks.splice(index,1)[0];
+                let blank = Object.assign({}, this.tasks[index]);
                 this.tasks_in_process.push(blank);
                 console.log("Список задач был перемещен в следующую колонку.");
                 console.log("tasks - " + this.tasks);

@@ -10,12 +10,16 @@ Vue.component('column', {
         id: {
             type: String,
             required: true,
+        },
+        arr:{
+            type: Array,
+            required: true,
         }
     },
     template:`
         <div class="column">
             <h2>{{ column_name }}</h2>
-            <div class="task_space" v-if="tasks.length" v-for="(task, index) in tasks">
+            <div class="task_space" v-if="arr.length" v-for="(task, index) in arr">
                 <h2>{{task.title}}</h2>
                 <p><input type="checkbox" @click="checkboxClick(index, 1)">{{task.task1}}</p>
                 <p><input type="checkbox" @click="checkboxClick(index, 2)">{{task.task2}}</p>
@@ -23,46 +27,20 @@ Vue.component('column', {
                 <p v-if="task.task4"><input type="checkbox" @click="checkboxClick(index, 4)">{{task.task4}}</p>
                 <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)">{{task.task5}}</p>
             </div>
-
-            <div class="task_space" v-if="tasks_in_process.length" v-for="(task, index) in tasks_in_process">
-                <h2>{{task.title}}</h2>
-                <p><input type="checkbox" @click="checkboxClick(index, 1)">{{task.task1}}</p>
-                <p><input type="checkbox" @click="checkboxClick(index, 2)">{{task.task2}}</p>
-                <p><input type="checkbox" @click="checkboxClick(index, 3)">{{task.task3}}</p>
-                <p v-if="task.task4"><input type="checkbox" @click="checkboxClick(index, 4)">{{task.task4}}</p>
-                <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)">{{task.task5}}</p>
-            </div>
-
-            <div class="task_space" v-if="tasks_finished.length" v-for="(task, index) in tasks_finished">
-                <h2>{{task.title}}</h2>
-                <p><input type="checkbox" @click="checkboxClick(index, 1)">{{task.task1}}</p>
-                <p><input type="checkbox" @click="checkboxClick(index, 2)">{{task.task2}}</p>
-                <p><input type="checkbox" @click="checkboxClick(index, 3)">{{task.task3}}</p>
-                <p v-if="task.task4"><input type="checkbox" @click="checkboxClick(index, 4)">{{task.task4}}</p>
-                <p v-if="task.task5"><input type="checkbox" @click="checkboxClick(index, 5)">{{task.task5}}</p>
-            </div>
-
         </div>
     `,
     data() {
         return {    
-            tasks :[],
-            tasks_in_process: [],
-            tasks_finished: [],
+
         }
     },
     methods:{
         checkboxClick(firstId, secondId){
             let el;
             firstId = parseInt(firstId);
-            switch(this.id){
-                case 'first':
-                    el = this.tasks[firstId];
-                    break;
-                case 'second':
-                    el = this.tasks_in_process[firstId];
-                    break;
-            }
+
+            el = this.arr[firstId];
+                
             if(el){
                 switch(secondId){
                     case 1:
@@ -90,64 +68,8 @@ Vue.component('column', {
         
     },
     mounted(){
-        eventBus.$on('form-created',function(list){
-            if(this.id == 'first'){
-                let activity = {};
-
-                for(key in list){
-                    if(list[key] && key!='title'){
-                        activity[key] = false;
-                    }
-                }
-                list.active = activity;
-                this.tasks.push(list);
-                // console.log(list);
-                // console.log(list.active);
-            }
-        }.bind(this)),
-
-
-        eventBus.$on('checkCount1',function(){
-            if(this.id=='first'){
-                eventBus.$emit('checkCount1Response', (this.tasks).length);
-                // console.log("(this.tasks).length) " + (this.tasks).length);
-            }
-        }.bind(this)),
-
-
-        eventBus.$on('check-activity', function(index, columnId){
-            let list;
-            let overTasks;
-            let actTasks = 0;
-            if(columnId == this.id){
-                if(columnId == 'first'){
-                    list=this.tasks[index];
-                    console.log("Событие произошло в столбце - " + columnId);
-                    console.log(`Переданный индекс = ${index} , его тип данных ${typeof(index)}`);
-                }else if(columnId == 'second'){
-                    list=this.tasks_in_process[index];
-                    console.log("Событие произошло в столбце - " + columnId);
-                    console.log(`Переданный индекс = ${index} , его тип данных ${typeof(index)}`);
-                }
-
-                overTasks = Object.keys(list.active).length;
-                for(let key in list.active){
-                    if(list.active[key]){
-                        actTasks +=1;
-                    }   
-                }
-                console.log(`Переменная overTasks = ${overTasks}`);
-                console.log(`Переменная actTasks = ${actTasks}`);
-
-                let blank = Object.assign({}, this.tasks[index]);
-                this.tasks_in_process.push(blank);
-                console.log("Список задач был перемещен в следующую колонку.");
-                console.log("tasks - " + this.tasks);
-                console.log("tasks_in_process - " + this.tasks_in_process);
-
-            }
-
-        }.bind(this))
+    
+        
     }
 })
 
@@ -252,5 +174,73 @@ Vue.component('creator', {
 
 
 let app = new Vue({
-    el: '#app',    
+    el: '#app',
+    data(){
+        return {
+            tasks :[],
+            tasks_in_process: [],
+            tasks_finished: [],
+        }
+    },
+    mounted(){
+        eventBus.$on('form-created',function(list){
+            let activity = {};
+
+            for(key in list){
+                if(list[key] && key!='title'){
+                    activity[key] = false;
+                }
+            }
+            list.active = activity;
+            this.tasks.push(list);
+            // console.log(list);
+            // console.log(list.active);
+            
+        }.bind(this)),
+
+
+        eventBus.$on('checkCount1',function(){
+            if(this.id=='first'){
+                eventBus.$emit('checkCount1Response', (this.tasks).length);
+                // console.log("(this.tasks).length) " + (this.tasks).length);
+            }
+        }.bind(this)),
+
+
+        eventBus.$on('check-activity', function(index, columnId){
+            console.log("Событие дошло до рута, начинается проверка ативности.");
+            console.log("index = " + index + ", columnId = " + columnId);
+            let list;
+            let overTasks;
+            let actTasks = 0;
+            
+            if(columnId == 'first'){
+                list=this.tasks[index];
+                console.log("Событие произошло в столбце - " + columnId);
+                console.log(`Переданный индекс = ${index} , его тип данных ${typeof(index)}`);
+            }else if(columnId == 'second'){
+                list=this.tasks_in_process[index];
+                console.log("Событие произошло в столбце - " + columnId);
+                console.log(`Переданный индекс = ${index} , его тип данных ${typeof(index)}`);
+            }
+
+            overTasks = Object.keys(list.active).length;
+            for(let key in list.active){
+                if(list.active[key]){
+                    actTasks +=1;
+                }   
+            }
+            console.log(`Переменная overTasks = ${overTasks}`);
+            console.log(`Переменная actTasks = ${actTasks}`);
+
+            let blank = Object.assign({}, this.tasks[index]);
+            this.tasks_in_process.push(blank);
+            console.log("Список задач был перемещен в следующую колонку.");
+            console.log("tasks - " + this.tasks);
+            console.log("tasks_in_process - " + this.tasks_in_process);
+
+            
+
+        }.bind(this))
+    }    
  })

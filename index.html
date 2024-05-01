@@ -12,9 +12,9 @@
     <div id="app">
         <creator></creator>
         <div class="for_column">
-            <column :id="'first'" :column_name="'Запланированные'"></column>
-            <column :id="'second'" :column_name="'В процессе'"></column>
-            <column :id="'third'" :column_name="'Выполненные'"></column>
+            <column :id="'first'" :column_name="'Запланированные'" :arr="tasks"></column>
+            <column :id="'second'" :column_name="'В процессе'" :arr="tasks_in_process"></column>
+            <column :id="'third'" :column_name="'Выполненные'" :arr="tasks_finished"></column>
         </div>
     </div>
 </body>
